@@ -85,7 +85,7 @@ const format = function (str='', data={}) {
         let [ , k, p, _] = args
 
         p = p && p.replace(/\((.*?)\)/g, function (_, idx) {
-            return db[idx]
+            return `"${db[idx]}"`
         })
 
         p = JSON.parse(p || '[]')
