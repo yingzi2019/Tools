@@ -84,8 +84,8 @@ const format = function (str='', data={}) {
     return str.replace(/\{(.*?)(\[.*\])?\}/g, function (...args) {
         let [ , k, p, _] = args
 
-        p = p && p.replace(/\(.*?\)/g, function (_) {
-            return eval(_)
+        p = p && p.replace(/\((.*?)\)/g, function (_, idx) {
+            return db[idx]
         })
 
         p = JSON.parse(p || '[]')
@@ -116,7 +116,7 @@ let c = (function(){
 
     console.log(format('---{0.ccc}---', o))
 
-    console.log(format('----{0[3, (db[\'a\'])]}---', f))
+    console.log(format('----{0[3, (a)]}---', f))
 
 })()
 
