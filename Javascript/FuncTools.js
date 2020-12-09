@@ -70,7 +70,6 @@ const obj2db = function (obj, db={}, parent='') {
         } else if (allowType(v, ['function'])) {
             db[parent + k] = v.bind(obj)
         } else if (allowType(v, ['object', 'array'])) {
-            db[parent + k] = JSON.stringify(v)
             obj2db(v, db, parent + k + '.')
         }
     }
@@ -82,15 +81,19 @@ const format = function (str='', data={}) {
         obj2db(data, db)
     }
 
-    return str.replace(/\{(.*?)(\[.*\])?\}/g, (...args) => {
+    return str.replace(/\{(.*?)(\[.*\])?\}/g, function (...args) {
         let [ , k, p, _] = args
+
+        p = p && p.replace(/\(.*?\)/g, function (_) {
+            return eval(_)
+        })
+
         p = JSON.parse(p || '[]')
-        return typeof db[k] === 'function' ? db[k](...args) : db[k]
+        return typeof db[k] === 'function' ? db[k](...p) : db[k]
     })
 }
 
-// test
-(function(){
+let c = (function(){
     let a, o, f, s
 
     s = '--{0}-<'
@@ -105,7 +108,7 @@ const format = function (str='', data={}) {
     }
     f = {
         0: function (...args) {
-            return '     +     '
+            return args.join(' - ')
         },
         "a": "789"
     }
@@ -113,9 +116,8 @@ const format = function (str='', data={}) {
 
     console.log(format('---{0.ccc}---', o))
 
-    console.log(format('----{0[3,6]}---{0}', f))
+    console.log(format('----{0[3, (db[\'a\'])]}---', f))
+
 })()
-
-
 
 
