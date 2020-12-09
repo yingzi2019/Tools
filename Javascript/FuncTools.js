@@ -57,6 +57,64 @@ export function throttle (func, delay = 500, that) {
   }
 }
 
+// 3. 字符串格式化
+
+const allowType = function (obj, args = []) {
+    return new Set(args).has(typeof obj)
+}
+
+const obj2db = function (obj, db={}, parent='') {
+    for (let [k, v] of Object.entries(obj)) {
+        if (allowType(v, ['string', 'number', 'boolean'])) {
+            db[parent + k] = v
+        } else if (allowType(v, ['function'])) {
+            db[parent + k] = v.bind(obj)
+        } else if (allowType(v, ['object', 'array'])) {
+            db[parent + k] = JSON.stringify(v)
+            obj2db(v, db, parent + k + '.')
+        }
+    }
+}
+
+const format = function (str='', data={}) {
+    let db = {}
+    if (allowType(data, ['object', 'array'])) {
+        obj2db(data, db)
+    }
+
+    return str.replace(/\{(.*?)(\[.*\])?\}/g, (...args) => {
+        let [ , k, p, _] = args
+        p = JSON.parse(p || '[]')
+        return typeof db[k] === 'function' ? db[k](...args) : db[k]
+    })
+}
+
+// test
+(function(){
+    let a, o, f, s
+
+    s = '--{0}-<'
+    a = ['abc---',]
+    o = {
+        '0': {
+            "ccc": 'eee'
+        },
+        a: {
+            g: 789
+        }
+    }
+    f = {
+        0: function (...args) {
+            return '     +     '
+        },
+        "a": "789"
+    }
+    console.log(format(s, a))
+
+    console.log(format('---{0.ccc}---', o))
+
+    console.log(format('----{0[3,6]}---{0}', f))
+})()
 
 
 
