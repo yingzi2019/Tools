@@ -77,16 +77,17 @@ const obj2db = function (obj, db={}, parent='') {
 
 const format = function (str='', data={}) {
     let db = {}
-    if (allowType(data, ['object', 'array'])) {
+    if (allowType(data, ['object', 'array']) && !data.__change) {
         obj2db(data, db)
+        db.__change = true
     }
+
+    db = data.__change ? data : db
 
     return str.replace(/\{(.*?)(\[.*\])?\}/g, function (...args) {
         let [ , k, p, _] = args
 
-        p = p && p.replace(/\((.*?)\)/g, function (_, idx) {
-            return `"${db[idx]}"`
-        })
+        p = p && format(p, db)
 
         p = JSON.parse(p || '[]')
         return typeof db[k] === 'function' ? db[k](...p) : db[k]
@@ -110,14 +111,18 @@ let c = (function(){
         0: function (...args) {
             return args.join(' - ')
         },
-        "a": "789"
+        "a": () => Date.now()
     }
     console.log(format(s, a))
 
     console.log(format('---{0.ccc}---', o))
 
-    console.log(format('----{0[3, (a)]}---', f))
+    console.log(format('----{0[3, {a}]}---', f))
+    setTimeout(() => {
+        
+        console.log(format('----{0[3, {a}]}---', f))
+    }, 3000);
+
 
 })()
-
 
