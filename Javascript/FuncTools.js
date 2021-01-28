@@ -1,5 +1,8 @@
 "use strict"
 
+const contentDisposition = require("content-disposition");
+
+
 // 防抖函数
 function debounce (func, delay, ...args) {
     let timer;
@@ -35,42 +38,78 @@ function throttle (func, delay, immediate, ...args) {
     };
 };
 
-// 字符串格式化
-function formatChar (char, sourceData={}) {
-    return char && char.replace && char.replace(/\{(.*)?\}/,(_, indexAt) => {
-        return getDataToPath(sourceData, indexAt);
-    });
-};
+// instance is Type ?
+function getType (obj) {
+    return Object.prototype.toString.call(obj).slice(8, -1)
+}
+// what is type ?
+function typeOf (obj) {
+    const type = typeof obj;
+
+    if (type !== 'object') {
+        return type
+    }
+
+    return getType(obj)
+}
 
 // 根据路径获取对象的值
-function getDataToPath (data={}, path='', df='') {
+function getPathValue (data={}, path='', df='') {
     return path.split('.').reduce((sourcre, key) => {
         return ( sourcre[key] || df );
     }, data);
 };
 
-//
+// 字符串格式化
+function formatChar (char, sourceData={}) {
+    return char && char.replace && char.replace(/\{(.*?)\}/g,(_, index) => {
+        return getPathValue(sourceData, index);
+    });
+};
 
+// 创建一个函数的拷贝
+function createFunc (func) {
+    const [full, params, operator, funcBody] = func.toString().match(/\((.*?)\)([ ]|=>)*?\{(.*)?\}/m)
+    return new Function(...params.split(/,[ ]*/gm), funcBody)
+}
 
-// test --getDataToPath && formatChar
-// const s = {a: 123, b: [4, 5, 6]};
-// console.log(getDataToPath(s, 'b.1'))
-// console.log(formatChar('-{b}-', s))
+// 深拷贝
+const whiteList = ['function', 'Object', 'Array'];
 
-// test --debounce
-// const s = {a: 123, b: [4, 5, 6]};
-// const delay = 5000;
-// const d = debounce(console.log, 3000, getDataToPath(s, 'b.1'));
-// setInterval(() => {
-//     console.log('delay---');
-//     d();
-// }, delay);
+function deepCopy (obj, hash=new WeakMap()) {
+    const type = typeOf(obj);
+    const isWhite = whiteList.includes(type);
 
-// test --throttle
-// const s = {a: 123, b: [4, 5, 6]};
-// const delay = 1000;
-// const t = throttle(console.log, 3000, false, getDataToPath(s, 'b.1'))
-// setInterval(() => {
-//     console.log('delay---');
-//     t();
-// }, delay);
+    if (isWhite) {
+        const allDesc = Object.getOwnPropertyDescriptors(obj);
+        const keys = Object.keys(obj)
+
+        const cloneObj =
+            type === 'function'
+            ? createFunc(obj)
+            : type === 'Array'
+                ? []
+                : Object.create(Object.getPrototypeOf(obj), allDesc);
+
+        for (const key of keys) {
+            cloneObj[key] = deepCopy(obj[key])
+        }
+
+        hash.set(obj, cloneObj)
+        return cloneObj
+
+    } else {
+        switch (type) {
+            case 'Date':
+                return new Date(obj)
+            case 'RegExp':
+                return new RegExp(obj)
+            case hash.has(obj):
+                return hash.get(obj)
+            case typeof obj:
+                return obj
+            default:
+                return false
+        }
+    }
+}
