@@ -73,7 +73,7 @@ function createFunc (func) {
     return new Function(...params.split(/,[ ]*/gm), funcBody)
 }
 
-// 深拷贝的白名单
+// 深拷贝的工具名单
 const whiteList = ['function', 'Object', 'Array'];
 
 // 深拷贝执行函数 
