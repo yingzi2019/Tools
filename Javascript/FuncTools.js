@@ -73,9 +73,10 @@ function createFunc (func) {
     return new Function(...params.split(/,[ ]*/gm), funcBody)
 }
 
-// 深拷贝
+// 深拷贝的白名单
 const whiteList = ['function', 'Object', 'Array'];
 
+// 深拷贝执行函数 
 function deepCopy (obj, hash=new WeakMap()) {
     const type = typeOf(obj);
     const isWhite = whiteList.includes(type);
