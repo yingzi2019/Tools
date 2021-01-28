@@ -1,8 +1,5 @@
 "use strict"
 
-const contentDisposition = require("content-disposition");
-
-
 // 防抖函数
 function debounce (func, delay, ...args) {
     let timer;
@@ -73,13 +70,13 @@ function createFunc (func) {
     return new Function(...params.split(/,[ ]*/gm), funcBody)
 }
 
-// 深拷贝的工具名单
-const whiteList = ['function', 'Object', 'Array'];
-
 // 深拷贝执行函数 
 function deepCopy (obj, hash=new WeakMap()) {
     const type = typeOf(obj);
-    const isWhite = whiteList.includes(type);
+    const isWhite = 
+        type === 'function'
+        || type === 'Object'
+        || type === 'Array';
 
     if (isWhite) {
         const allDesc = Object.getOwnPropertyDescriptors(obj);
@@ -88,9 +85,7 @@ function deepCopy (obj, hash=new WeakMap()) {
         const cloneObj =
             type === 'function'
             ? createFunc(obj)
-            : type === 'Array'
-                ? []
-                : Object.create(Object.getPrototypeOf(obj), allDesc);
+            : Object.create(Object.getPrototypeOf(obj), allDesc);
 
         for (const key of keys) {
             cloneObj[key] = deepCopy(obj[key])
@@ -101,14 +96,14 @@ function deepCopy (obj, hash=new WeakMap()) {
 
     } else {
         switch (type) {
+            case typeof obj:
+                return obj
+            case hash.has(obj):
+                return hash.get(obj)
             case 'Date':
                 return new Date(obj)
             case 'RegExp':
                 return new RegExp(obj)
-            case hash.has(obj):
-                return hash.get(obj)
-            case typeof obj:
-                return obj
             default:
                 return false
         }
