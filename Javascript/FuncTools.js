@@ -36,11 +36,11 @@ function throttle (func, delay, immediate, ...args) {
 };
 
 // instance is Type ?
-function getType (obj) {
+export function getType (obj) {
     return Object.prototype.toString.call(obj).slice(8, -1)
 }
 // what is type ?
-function typeOf (obj) {
+export function typeOf (obj) {
     const type = typeof obj;
 
     if (type !== 'object') {
@@ -51,14 +51,14 @@ function typeOf (obj) {
 }
 
 // 根据路径获取对象的值
-function getPathValue (data={}, path='', df='') {
+export function getPathValue (data={}, path='', df='') {
     return path.split('.').reduce((sourcre, key) => {
         return ( sourcre[key] || df );
     }, data);
 };
 
 // 字符串格式化
-function formatChar (char, sourceData={}) {
+export function formatString (char, sourceData={}) {
     return char && char.replace && char.replace(/\{(.*?)\}/g,(_, index) => {
         return getPathValue(sourceData, index);
     });
@@ -71,41 +71,21 @@ function createFunc (func) {
 }
 
 // 深拷贝执行函数 
-function deepCopy (obj, hash=new WeakMap()) {
-    const type = typeOf(obj);
-    const isWhite = 
-        type === 'function'
-        || type === 'Object'
-        || type === 'Array';
-
-    if (isWhite) {
+export function deepCopy (obj, hash=new WeakMap()) {
+    const type = getType(obj);
+    if (type === typeof obj || type === 'Null') return obj;
+    if (type === 'Object' || type == 'Array') {
         const allDesc = Object.getOwnPropertyDescriptors(obj);
-        const keys = Object.keys(obj)
+        const cloneObj = Object.create(Oobject.getPrototypeOf(obj), allDesc);
+        hash.set(obj, cloneObj);
 
-        const cloneObj =
-            type === 'function'
-            ? createFunc(obj)
-            : Object.create(Object.getPrototypeOf(obj), allDesc);
-
-        for (const key of keys) {
-            cloneObj[key] = deepCopy(obj[key])
+        for (let key of Reflect.ownKeys(obj)) {
+            cloneObj[key] = deepCopy(obj[key]);
         }
 
-        hash.set(obj, cloneObj)
         return cloneObj
-
-    } else {
-        switch (type) {
-            case typeof obj:
-                return obj
-            case hash.has(obj):
-                return hash.get(obj)
-            case 'Date':
-                return new Date(obj)
-            case 'RegExp':
-                return new RegExp(obj)
-            default:
-                return false
-        }
     }
+
+    if (type === 'Date') return new Date(obj)
+    if (type === 'RegExp') return new RegExp(obj)
 }
