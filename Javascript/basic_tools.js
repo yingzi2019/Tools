@@ -43,7 +43,7 @@ function getObjType (obj) {
 /**
  * 
  * @param {any} any 
- * @returns obj type
+ * @returns obj type or basic type
  */
 function getType (any) {
     const res = typeof any;
@@ -134,18 +134,13 @@ function parseQueryString (url) {
 }
 
 /**
- * 
- * @param {Function} useRequest 接收原生open的参数, 不能去修改, 
- * @param {Function} useResponse 接收一个对象, 有response属性与自定义的config属性, config属性中有请求的url以及postData和请求方式
+ * @param {Object} interceptObject {onRequest,onResponse,setRequest(fn),setResponse(fn), removeRequest(), removeResponse()}
  */
-function custXHR (useRequest, useResponse) {
+function custXHR (interceptObject) {
     const XHR = window.XMLHttpRequest;
     if (!XHR) {
         throw new Error('抱歉，您的浏览器不支持XMLHttpResponse进行请求~');
     }
-    const equally = (...args) => args;
-    useRequest = useRequest || equally;
-    useResponse = useResponse || equally;
 
     const open = XHR.prototype.open;
     const send = XHR.prototype.send;
@@ -159,7 +154,14 @@ function custXHR (useRequest, useResponse) {
         username,
         password
     ) {
-        useRequest(method, targetUrl, isAsync, username, password);
+        interceptObject.onRequest &&
+            interceptObject.onRequest(
+                method,
+                targetUrl,
+                isAsync,
+                username,
+                password
+            );
         requestMethod = method;
         requestUrl = targetUrl;
 
@@ -180,14 +182,15 @@ function custXHR (useRequest, useResponse) {
                     }
                 }
 
-                useResponse({
-                    config: {
-                        method: requestMethod,
-                        url: requestUrl,
-                        data: postData
-                    },
-                    response: responseData
-                });
+                interceptObject.onResponse &&
+                    interceptObject.onResponse({
+                        config: {
+                            method: requestMethod,
+                            url: requestUrl,
+                            data: postData
+                        },
+                        response: responseData
+                    });
             }
         });
 
