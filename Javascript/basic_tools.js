@@ -1,5 +1,5 @@
 /**
- * 
+ *
  * @param {Array} arr 期望是一个数组
  * @returns {Generator} 可以使用扩展运算符将其解构 [...result]
  */
@@ -18,9 +18,9 @@ function* flat_arr (arr) {
 }
 
 /**
- * 
+ *
  * @param {Function} fn 初始函数
- * @param  {...any} args 
+ * @param  {...any} args
  * @returns 结果 或 本身
  */
 function partial (fn, ...args) {
@@ -32,8 +32,8 @@ function partial (fn, ...args) {
 }
 
 /**
- * 
- * @param {any} obj 
+ *
+ * @param {any} obj
  * @returns obj type
  */
 function getObjType (obj) {
@@ -41,8 +41,8 @@ function getObjType (obj) {
 }
 
 /**
- * 
- * @param {any} any 
+ *
+ * @param {any} any
  * @returns obj type or basic type
  */
 function getType (any) {
@@ -55,7 +55,7 @@ function getType (any) {
 
 /**
  * 根据属性路径, 获取data中的数据
- * @param {object} data {} 
+ * @param {object} data {}
  * @param {string} path a.b.c
  * @param {any} df ''
  * @returns data.attrs
@@ -101,8 +101,8 @@ function formatString (sourceData = {}, char = '') {
 }
 
 /**
- * 
- * @param {URL} url "https://www.baidu.com/?q=st" 
+ *
+ * @param {URL} url "https://www.baidu.com/?q=st"
  * @returns {Object} {q: 'st'}
  */
 function parseQueryString (url) {
@@ -203,4 +203,49 @@ function custXHR (interceptObject) {
             password
         );
     };
+}
+
+/**
+ * 
+ * @param {Number} waitTime 需要等待的毫秒数
+ * @returns void
+ */
+const sleep = (waitTime = 500) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, waitTime);
+    });
+};
+
+/**
+ * 
+ * @param {Function} func // 一个函数, 没有接收参数, 但可以使用bind来注入参数
+ * @param {Number} num // 数字, 函数的循环次数
+ * @param {Number} waitTime // 每次循环间隔的毫秒数 
+ * @returns // 保存函数每次执行的结果 的数组
+ */
+async function toBeRun (func, num, waitTime) {
+    let result = [];
+    for (let i = 0; i < num; i++) {
+        result.push(func());
+        await sleep(waitTime);
+    }
+    return result;
+}
+
+/**
+ * 
+ * @param {Function} func // 一个函数, 可以以接收序列元素的value, key, 以及序列元素
+ * @param {Array|Object} queue // 接收的序列元素 
+ * @param {Number} waitTime // 每次执行之后间隔的毫秒数
+ * @returns // 保存函数每次执行的结果 的数组
+ */
+async function toBeRunUp (func, queue, waitTime) {
+    let result = [];
+    const keys = Object.keys(queue);
+    for (const key of keys) {
+        const item = queue[key];
+        result.push(func(item, key, queue));
+        await sleep(waitTime);
+    }
+    return result;
 }

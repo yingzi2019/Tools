@@ -73,17 +73,19 @@ class EncryptResponse(object):
         )
 
     def get_secret_idx(self, pre, mid, end):
-        a_code = ord(pre) ^ ord(self.secret_key[self.get_index()])
-        b_code = ord(mid) ^ ord(self.secret_key[self.get_index()])
-        c_code = ord(end) ^ ord(self.secret_key[self.get_index()])
+        _a = self.secret_key[self.get_index()]
+        a_code = ord(pre) ^ ord(_a)
+        _b = self.secret_key[self.get_index()]
+        b_code = ord(mid) ^ ord(_b)
+        _c = self.secret_key[self.get_index()]
+        c_code = ord(end) ^ ord(_c)
 
         a, a_t = divmod(a_code, 4)
-        d_t, d = divmod(c_code, 36)
+        d_t, d = divmod(c_code, 64)
 
         b_t, c_t = divmod(b_code, 16)
         b = self.b_like_list[a_t][b_t]
         c = self.c_like_list[d_t][c_t]
-        print(a, b, c, d)
         return a, b, c, d
 
     def encrypt_json_data(self, data):
@@ -100,145 +102,3 @@ class EncryptResponse(object):
             result.extend([self.front_str[i] for i in args])
         return ''.join(result)
 
-
-if __name__ == '__main__':
-    data = {
-        "index_banner_new": [
-            {
-                "id": 662,
-                "title": "聚智创新·融合发展|2021大健康产业高质量发展大会暨第六届中国医药研发·创新峰会（PDI）",
-                "content": "//news-files.yaozh.com/system_53/7eb9b3a0dc0d83fd466ad304c079cd32.png",
-                "url": "https://pdi.yaozh.com/?ga_source=news&amp;amp%3Bga_name=index_flash",
-                "nav_id": 0
-            },
-            {
-                "id": 697,
-                "title": "@医药人：“2021年中国CRO企业排行榜”评选活动报名通道开启！",
-                "content": "//news-files.yaozh.com/system_53/fe6276b2adfcf030696c29b8f952b78f.jpg",
-                "url": "https://news.yaozh.com/archive/33905.html?ga_source=news&amp;amp%3Bga_name=index_flash",
-                "nav_id": 0
-            },
-            {
-                "id": 736,
-                "title": "【免费参会】数据赋能·创新发展|小分子创新药研发技能论坛——邀您6月共聚苏州",
-                "content": "//news-files.yaozh.com/system_53/0a632e357f80253686e9874b7b3570e8.png",
-                "url": "https://news.yaozh.com/archive/34123.html?ga_source=news&amp;amp%3Bga_name=index_flash",
-                "nav_id": 0
-            },
-            {
-                "id": 741,
-                "title": "“医药行业三大百强榜”分析！2021中国药品研发实力100强榜即将发布",
-                "content": "//news-files.yaozh.com/system_53/4b9db9c6745fc418856683c41e7d79b2.png",
-                "url": "https://news.yaozh.com/archive/34167.html?ga_source=news&amp;amp%3Bga_name=index_flash",
-                "nav_id": 0
-            },
-            {
-                "id": 669,
-                "title": "药智学院MDP精英训练营（第二期 上海站）|医药数据检索与研发立项专题培训",
-                "content": "//news-files.yaozh.com/system_53/a5ae90b065b7984524597e9a330e2f0f.png",
-                "url": "https://news.yaozh.com/archive/33763.html?ga_source=news&amp;amp%3Bga_name=index_flash",
-                "nav_id": 0
-            },
-            {
-                "id": 633,
-                "title": "“化学+药学+医学”全产业链，一站式CRO研发服务",
-                "content": "//news-files.yaozh.com/system_53/54be82f7fc9ab4a488892a8e71d1532c.png",
-                "url": "https://news.yaozh.com/archive/33010.html?ga_source=news&amp;amp%3Bga_name=index_flash",
-                "nav_id": 0
-            },
-            {
-                "id": 536,
-                "title": "实时发布、全面曝光！让项目/产品推广活起来！",
-                "content": "//news-files.yaozh.com/system_53/a46bd8008f6ff8df22f7d4bd66e6c202.png",
-                "url": "https://news.yaozh.com/BrandZone?ga_source=news&amp;amp%3Bga_name=index_flash",
-                "nav_id": 0
-            }
-        ],
-        "index_top_new": [
-            {
-                "id": 703,
-                "title": "@医药人：“2021年中国CRO企业排行榜”评选活动报名通道开启！",
-                "content": "//news-files.yaozh.com/system_53/baf36bfbd25a1b14570ace2c4530ad19.jpg",
-                "url": "https://news.yaozh.com/archive/33905.html?ga_source=news&amp;amp%3Bga_name=index_flash",
-                "nav_id": 0
-            }
-        ],
-        "index_rightcorner_new": [],
-        "index_hotactivity_new": [
-            {
-                "id": 696,
-                "title": "“2021年中国CRO企业排行榜”评选活动",
-                "content": "//news-files.yaozh.com/system_57/deeec2f96278b4bf8686b9d64e77fda1.png",
-                "url": "https://news.yaozh.com/archive/33905.html",
-                "nav_id": 0
-            }
-        ],
-        "Article_detail_ad1_new": [],
-        "Atals_detail_ad_new": [],
-        "column_top_new": [],
-        "column_banner_new": [],
-        "column_banner_rightside_ad1_new": [],
-        "column_banner_rightside_ad2_new": [],
-        "indexh5_banner_new": [
-            {
-                "id": 745,
-                "title": "“医药行业三大百强榜”分析！2021中国药品研发实力100强榜即将发布",
-                "content": "//news-files.yaozh.com/system_53/8c696c0d6f8092d670cbdb66f365622d.png",
-                "url": "https://news.yaozh.com/archive/34167.html?ga_source=news&amp;amp%3Bga_name=index_flash",
-                "nav_id": 0
-            },
-            {
-                "id": 668,
-                "title": "药智学院MDP精英训练营（第二期 上海站）|医药数据检索与研发立项专题培训",
-                "content": "//news-files.yaozh.com/system_53/0835ba4d5bcbfef9b97918aa63f841ff.png",
-                "url": "https://news.yaozh.com/archive/33763.html?ga_source=news&amp;amp%3Bga_name=index_flash",
-                "nav_id": 0
-            }
-        ],
-        "columnh5_banner_new": [],
-        "Articleh5_detail_ad1_new": [],
-        "Atalsh5_detail_ad_new": [],
-        "video_banner_new": [],
-        "video_banner_rightside_ad1_new": [],
-        "video_banner_rightside_ad2_new": [],
-        "meeting_banner_new": [],
-        "videoh5_banner_new": [],
-        "pinpai_banner_new": [
-            {
-                "id": 514,
-                "title": "北京鑫开元医药科技有限公司",
-                "content": "//news-files.yaozh.com/system_54/d95c06e92c55f4e718119ed856d7ea9b.jpg",
-                "url": "https://news.yaozh.com/archive/32657.html",
-                "nav_id": 0
-            },
-            {
-                "id": 535,
-                "title": "实时发布、全面曝光！让项目/产品推广活起来！",
-                "content": "//news-files.yaozh.com/system_54/7d279b69d1f0488d4a13830437a1f8e4.png",
-                "url": "https://news.yaozh.com/archive/32775.html?ga_source=news&amp;amp%3Bamp%3Bga_name=index_flash",
-                "nav_id": 0
-            }
-        ],
-        "pinpai_banner_rightside_ad1_new": [
-            {
-                "id": 508,
-                "title": "牌牌生物",
-                "content": "//news-files.yaozh.com/system_54/e1c79fafdde592ace087c9b5d35524f9.png",
-                "url": "https://news.yaozh.com/archive/32882.html",
-                "nav_id": 0
-            }
-        ],
-        "pinpai_banner_rightside_ad2_new": [
-            {
-                "id": 509,
-                "title": "威凯尔医药",
-                "content": "//news-files.yaozh.com/system_54/85acc817309907cd830ab4d2e7f802f4.png",
-                "url": "https://news.yaozh.com/archive/33010.html",
-                "nav_id": 0
-            }
-        ]
-    }
-    print(data)
-    er = EncryptResponse('yaozh_news2020!')
-    temp = er.encrypt_json_data(data)
-    print('\n\n', temp, '\n\n')
